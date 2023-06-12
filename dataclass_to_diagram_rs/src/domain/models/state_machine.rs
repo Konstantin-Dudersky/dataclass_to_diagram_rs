@@ -1,12 +1,15 @@
-use super::state_machine_builders::{DiagramBuilder, StateBuilder, TransitionBuilder};
+use super::state_machine_builders::{
+    DiagramBuilder, StateBuilder, TransitionBuilder,
+};
 
 // State -----------------------------------------------------------------------
 
-pub struct State {
+pub struct State<'a> {
     pub alias: u32,
     pub kind: StateKind,
     pub name: String,
     pub description: Option<String>,
+    pub internal_states: Option<Vec<&'a State<'a>>>,
 }
 
 #[derive(Debug, Default, PartialEq)]
@@ -20,14 +23,14 @@ pub enum StateKind {
     Choice,
 }
 
-impl State {
+impl<'a> State<'a> {
     #[allow(clippy::new_ret_no_self)]
     pub fn new(name: &str) -> StateBuilder {
         StateBuilder::new(name)
     }
 }
 
-impl PartialEq for State {
+impl<'a> PartialEq for State<'a> {
     fn eq(&self, other: &Self) -> bool {
         self.alias == other.alias && self.name == other.name
     }
@@ -36,8 +39,8 @@ impl PartialEq for State {
 // Transition ------------------------------------------------------------------
 
 pub struct Transition<'a> {
-    pub begin: &'a State,
-    pub end: &'a State,
+    pub begin: &'a State<'a>,
+    pub end: &'a State<'a>,
     pub description: Option<String>,
     pub option: TransitionOption,
 }
@@ -59,7 +62,7 @@ impl<'a> Transition<'a> {
 // Diagram ---------------------------------------------------------------------
 
 pub struct Diagram<'a> {
-    pub states: Vec<&'a State>,
+    pub states: Vec<&'a State<'a>>,
     pub transitions: Vec<&'a Transition<'a>>,
     pub hide_empty_description: bool,
 }

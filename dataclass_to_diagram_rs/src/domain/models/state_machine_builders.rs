@@ -1,6 +1,8 @@
 use std::sync::Mutex;
 
-use super::state_machine::{Diagram, State, StateKind, Transition, TransitionOption};
+use super::state_machine::{
+    Diagram, State, StateKind, Transition, TransitionOption,
+};
 
 static ALIAS: Mutex<u32> = Mutex::new(0);
 
@@ -11,6 +13,7 @@ pub struct StateBuilder<'a> {
     kind: StateKind,
     name: &'a str,
     description: Option<&'a str>,
+    internal_states: Option<Vec<&'a State<'a>>>,
 }
 
 impl<'a> StateBuilder<'a> {
@@ -39,12 +42,22 @@ impl<'a> StateBuilder<'a> {
         }
     }
 
-    pub fn build(self) -> State {
+    pub fn add_internal_state(self, state: &'a State) -> Self {
+        let mut internal_states = self.internal_states.unwrap_or_default();
+        internal_states.push(state);
+        Self {
+            internal_states: Some(internal_states),
+            ..self
+        }
+    }
+
+    pub fn build(self) -> State<'a> {
         State {
             alias: self.alias,
             kind: self.kind,
             name: String::from(self.name),
             description: self.description.map(String::from),
+            internal_states: self.internal_states,
         }
     }
 }
@@ -52,8 +65,8 @@ impl<'a> StateBuilder<'a> {
 // Transition ------------------------------------------------------------------
 
 pub struct TransitionBuilder<'a> {
-    begin: &'a State,
-    end: &'a State,
+    begin: &'a State<'a>,
+    end: &'a State<'a>,
     description: Option<&'a str>,
     option: TransitionOption,
 }
@@ -93,7 +106,7 @@ impl<'a> TransitionBuilder<'a> {
 
 #[derive(Default)]
 pub struct DiagramBuilder<'a> {
-    states: Vec<&'a State>,
+    states: Vec<&'a State<'a>>,
     transitions: Vec<&'a Transition<'a>>,
 }
 
@@ -141,6 +154,20 @@ mod tests {
         assert_eq!(state1.name, "test state name");
         assert_eq!(state1.description.unwrap(), "state description");
         assert_eq!(state1.kind, StateKind::End);
+    }
+
+    #[test]
+    fn internal_states() {
+        let int_state1 = State::new("internal 1").build();
+        let int_state2 = State::new("internal 2").build();
+        let state1 = State::new("state with internal states")
+            .add_internal_state(&int_state1)
+            .add_internal_state(&int_state2)
+            .build();
+
+        let internal_states = state1.internal_states.unwrap();
+        assert_eq!(internal_states[0].name, "internal 1");
+        assert_eq!(internal_states[1].name, "internal 2");
     }
 
     #[test]
