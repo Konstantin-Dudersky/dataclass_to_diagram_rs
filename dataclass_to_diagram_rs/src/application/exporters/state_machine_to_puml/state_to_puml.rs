@@ -66,7 +66,7 @@ fn export_internal_states_some(internal_states: &Vec<&State>) -> String {
         .collect::<Vec<String>>()
         .join("\n");
     let internal_states_str = increase_indent(&internal_states_str);
-    format!("{{\n{}\n}}", internal_states_str)
+    format!(" {{\n{}\n}}", internal_states_str)
 }
 
 // tests -----------------------------------------------------------------------
@@ -165,7 +165,7 @@ desc line 3";
             .build();
 
         let puml = format!(
-            "state \"main_state\" as {}{{
+            "state \"main_state\" as {} {{
     state \"state11\" as {}
     state \"state12\" as {}
 }}",

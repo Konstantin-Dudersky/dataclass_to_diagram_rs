@@ -108,12 +108,23 @@ impl<'a> TransitionBuilder<'a> {
 pub struct DiagramBuilder<'a> {
     states: Vec<&'a State<'a>>,
     transitions: Vec<&'a Transition<'a>>,
+    hide_empty_description: bool,
 }
 
 impl<'a> DiagramBuilder<'a> {
     pub fn new() -> Self {
         Self {
             ..Default::default()
+        }
+    }
+
+    pub fn set_hide_empty_description(
+        self,
+        hide_empty_description: bool,
+    ) -> Self {
+        Self {
+            hide_empty_description,
+            ..self
         }
     }
 
@@ -136,7 +147,7 @@ impl<'a> DiagramBuilder<'a> {
         Diagram {
             states: self.states,
             transitions: self.transitions,
-            hide_empty_description: false,
+            hide_empty_description: self.hide_empty_description,
         }
     }
 }
