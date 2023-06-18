@@ -1,10 +1,16 @@
-use crate::domain::models::state_machine::{Transition, TransitionOption};
+use crate::domain::models::state_machine::{
+    State, Transition, TransitionOption,
+};
 
-pub fn export(transition: &Transition) -> String {
+pub fn export<TStates>(
+    transition: &Transition<TStates>,
+    begin: &State<TStates>,
+    end: &State<TStates>,
+) -> String {
     format!(
         "{begin} --> {end}{option}{description}",
-        begin = transition.begin.alias,
-        end = transition.end.alias,
+        begin = begin.alias,
+        end = end.alias,
         option = export_option(&transition.option),
         description = export_description(transition.description.as_deref()),
     )
@@ -25,51 +31,57 @@ fn export_description(description: Option<&str>) -> String {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use crate::domain::models::state_machine::State;
+#[cfg(test)]
+mod tests {
+    use derive_more::Display;
 
-//     #[test]
-//     fn minimal() {
-//         let st1 = State::new("begin").build();
-//         let st2 = State::new("end").build();
-//         let trans = Transition::new(&st1, &st2).build();
-//         let puml = format!("{} --> {}", st1.alias, st2.alias);
-//         assert_eq!(export(&trans), puml);
-//     }
+    use super::*;
 
-//     #[test]
-//     fn with_description() {
-//         let st1 = State::new("begin").build();
-//         let st2 = State::new("end").build();
-//         let trans = Transition::new(&st1, &st2)
-//             .set_description("description")
-//             .build();
-//         let puml = format!("{} --> {} : description", st1.alias, st2.alias);
-//         assert_eq!(export(&trans), puml);
-//     }
+    #[derive(Display)]
+    enum States {
+        State1,
+        State2,
+    }
 
-//     #[test]
-//     fn test_with_description_multiline() {
-//         let st1 = State::new("begin").build();
-//         let st2 = State::new("end").build();
-//         let trans = Transition::new(&st1, &st2)
-//             .set_description("line 1\nline 2")
-//             .build();
-//         let puml = format!("{} --> {} : line 1\\nline 2", st1.alias, st2.alias);
-//         assert_eq!(export(&trans), puml);
-//     }
+    #[test]
+    fn minimal() {
+        let st1 = State::new(States::State1);
+        let st2 = State::new(States::State2);
+        let trans = Transition::new(States::State1, States::State2);
+        let puml = format!("{} --> {}", st1.alias, st2.alias);
+        assert_eq!(export(&trans, &st1, &st2), puml);
+    }
 
-//     #[test]
-//     fn option_history() {
-//         let st1 = State::new("begin").build();
-//         let st2_1 = State::new("internal").build();
-//         let st2 = State::new("end").add_internal_state(&st2_1).build();
-//         let trans = Transition::new(&st1, &st2)
-//             .set_option(TransitionOption::History)
-//             .build();
-//         let puml = format!("{} --> {}[H]", st1.alias, st2.alias);
-//         assert_eq!(export(&trans), puml);
-//     }
-// }
+    #[test]
+    fn with_description() {
+        let st1 = State::new(States::State1);
+        let st2 = State::new(States::State2);
+        let mut trans = Transition::new(States::State1, States::State2);
+        trans.set_description("description");
+
+        let puml = format!("{} --> {} : description", st1.alias, st2.alias);
+        assert_eq!(export(&trans, &st1, &st2), puml);
+    }
+
+    #[test]
+    fn test_with_description_multiline() {
+        let st1 = State::new(States::State1);
+        let st2 = State::new(States::State2);
+        let mut trans = Transition::new(States::State1, States::State2);
+        trans.set_description("line 1\nline 2");
+
+        let puml = format!("{} --> {} : line 1\\nline 2", st1.alias, st2.alias);
+        assert_eq!(export(&trans, &st1, &st2), puml);
+    }
+
+    #[test]
+    fn option_history() {
+        let st1 = State::new(States::State1);
+        let st2 = State::new(States::State2);
+        let mut trans = Transition::new(States::State1, States::State2);
+        trans.set_option(TransitionOption::History);
+
+        let puml = format!("{} --> {}[H]", st1.alias, st2.alias);
+        assert_eq!(export(&trans, &st1, &st2), puml);
+    }
+}

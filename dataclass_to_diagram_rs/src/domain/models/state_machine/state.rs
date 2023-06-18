@@ -2,8 +2,8 @@ use std::cmp::PartialEq;
 use std::fmt::Display;
 
 pub struct State<TStates> {
-    pub state: TStates,
-    pub name: String,
+    pub item_in_enum: TStates,
+    pub alias: String,
     pub kind: StateKind,
     pub description: Option<String>,
     pub parent_state: Option<TStates>,
@@ -20,12 +20,15 @@ pub enum StateKind {
     Choice,
 }
 
-impl<TStates: Display> State<TStates> {
-    pub fn new(state: TStates) -> Self {
-        let name = format!("{}", state);
+impl<TStates> State<TStates>
+where
+    TStates: Display,
+{
+    pub fn new(item_in_enum: TStates) -> Self {
+        let alias = format!("{}", item_in_enum);
         Self {
-            state,
-            name,
+            item_in_enum,
+            alias,
             kind: StateKind::General,
             description: None,
             parent_state: None,
@@ -66,7 +69,7 @@ mod test {
             .set_description("state description")
             .set_kind(StateKind::End);
 
-        assert_eq!(state.name, "State1");
+        assert_eq!(state.alias, "State1");
         assert_eq!(state.description.unwrap(), "state description");
         assert_eq!(state.kind, StateKind::End);
     }

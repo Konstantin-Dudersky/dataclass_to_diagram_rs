@@ -141,38 +141,6 @@ impl<'a> Diagram<'a> {
 mod tests {
     use super::*;
 
-    #[test]
-    fn state() {
-        let st1 = State::new("test state name")
-            .set_description("test state description")
-            .set_kind(StateKind::End);
-        assert_eq!(st1.name, "test state name");
-        assert_eq!(st1.description.as_ref().unwrap(), "test state description");
-        assert_eq!(st1.kind, StateKind::End);
-    }
-
-    #[test]
-    fn internal_states() {
-        let internal_state_1 = State::new("internal state 1");
-        let internal_state_2 = State::new("internal state 2");
-        let state = State::new("main state")
-            .add_internal_state(internal_state_1)
-            .add_internal_state(internal_state_2);
-
-        assert_eq!(state.internal_states[0].name, "internal state 1");
-        assert_eq!(state.internal_states[1].name, "internal state 2");
-    }
-
-    #[test]
-    fn transition() {
-        let state1 = State::new("state1");
-        let state2 = State::new("state2");
-        let trans = Transition::new(&state1, &state2);
-
-        assert_eq!(trans.begin.name, "state1");
-        assert_eq!(trans.end.name, "state2");
-    }
-
     // #[test]
     // fn diagram() {
     //     let mut dia = Diagram::new();
