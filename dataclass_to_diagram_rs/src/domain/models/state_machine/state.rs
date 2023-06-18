@@ -6,7 +6,7 @@ pub struct State<TStates> {
     pub alias: String,
     pub kind: StateKind,
     pub description: Option<String>,
-    pub parent_state: Option<TStates>,
+    pub parent_state: Option<String>,
 }
 
 #[derive(Debug, Default, PartialEq)]
@@ -41,7 +41,7 @@ where
     }
 
     pub fn set_parent(&mut self, parent_state: TStates) -> &mut Self {
-        self.parent_state = Some(parent_state);
+        self.parent_state = Some(format!("{}", parent_state));
         self
     }
 
@@ -57,13 +57,14 @@ mod test {
 
     use super::*;
 
+    #[derive(Debug, Display, PartialEq)]
+    enum States {
+        State1,
+        State2,
+    }
+
     #[test]
     fn state() {
-        #[derive(Display, PartialEq)]
-        enum States {
-            State1,
-        }
-
         let mut state = State::new(States::State1);
         state
             .set_description("state description")
@@ -76,16 +77,10 @@ mod test {
 
     #[test]
     fn parent_state() {
-        #[derive(Debug, Display, PartialEq)]
-        enum States {
-            State1,
-            State2,
-        }
-
         let mut state = State::new(States::State1);
         assert!(state.parent_state.is_none());
 
         state.set_parent(States::State2);
-        assert_eq!(state.parent_state.unwrap(), States::State2);
+        assert_eq!(state.parent_state.unwrap(), "State2");
     }
 }
