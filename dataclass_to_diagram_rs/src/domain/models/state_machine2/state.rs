@@ -51,16 +51,14 @@ impl<TStates: Display> State<TStates> {
 #[cfg(test)]
 mod test {
     use derive_more::Display;
-    use enum_iterator::Sequence;
 
     use super::*;
 
     #[test]
     fn state() {
-        #[derive(Display, Sequence, PartialEq)]
+        #[derive(Display, PartialEq)]
         enum States {
             State1,
-            State2,
         }
 
         let mut state = State::new(States::State1);
@@ -75,7 +73,7 @@ mod test {
 
     #[test]
     fn parent_state() {
-        #[derive(Debug, Display, Sequence, PartialEq)]
+        #[derive(Debug, Display, PartialEq)]
         enum States {
             State1,
             State2,
