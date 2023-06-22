@@ -9,7 +9,7 @@ pub struct State<TStates> {
     pub parent_state: Option<String>,
 }
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub enum StateKind {
     #[default]
     General,

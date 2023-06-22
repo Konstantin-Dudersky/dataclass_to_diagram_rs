@@ -1,16 +1,17 @@
 use super::super::utils::increase_indent::increase_indent;
 
-use crate::domain::models::state_machine::{State, StateKind};
+use crate::domain::models::state_machine::StateKind;
 
-pub fn export<TStates>(
-    state: &State<TStates>,
-    internal_states: Option<String>,
-) -> String {
-    match state.kind {
+use super::state_exported::StateExported;
+
+pub fn export<TStates>(state: &mut StateExported<TStates>) -> String {
+    let exported = match state.kind {
         StateKind::General => format!(
             "state \"{alias}\" as {alias}{internal_states}{description}",
             alias = state.alias,
-            internal_states = export_internal_states(internal_states),
+            internal_states =
+                export_internal_states(&mut state.internal_states_exported),
+            // internal_states = String::from(""),
             description =
                 export_description(&state.alias, state.description.as_deref())
         ),
@@ -29,7 +30,9 @@ pub fn export<TStates>(
         StateKind::Choice => {
             format!("state {alias} <<choice>>", alias = state.alias)
         }
-    }
+    };
+    state.exported = Some(exported.clone());
+    exported
 }
 
 fn export_description(alias: &str, description: Option<&str>) -> String {
@@ -54,16 +57,14 @@ fn export_description_some(alias: &str, description: &str) -> String {
     format!("\n{}", format)
 }
 
-fn export_internal_states(internal_states: Option<String>) -> String {
-    match internal_states {
-        Some(value) => export_internal_states_some(&value),
-        None => String::from(""),
+fn export_internal_states(internal_states: &mut Vec<String>) -> String {
+    if internal_states.len() == 0 {
+        return String::from("");
     }
-}
-
-fn export_internal_states_some(internal_states: &str) -> String {
-    let internal_states_str = increase_indent(&internal_states);
-    format!(" {{\n{}\n}}", internal_states_str)
+    internal_states.sort();
+    let internal_states_string = internal_states.join("\n");
+    let internal_states_string = increase_indent(&internal_states_string);
+    format!(" {{\n{}\n}}", internal_states_string)
 }
 
 // tests -----------------------------------------------------------------------
@@ -72,9 +73,11 @@ fn export_internal_states_some(internal_states: &str) -> String {
 mod test {
     use derive_more::Display;
 
+    use crate::domain::models::state_machine::State;
+
     use super::*;
 
-    #[derive(Display)]
+    #[derive(Clone, Display)]
     enum States {
         State1,
     }
@@ -82,60 +85,67 @@ mod test {
     #[test]
     fn minimal() {
         let state = State::new(States::State1);
+        let mut state_exported = StateExported::from(&state);
         let puml = format!("state \"State1\" as {}", state.alias);
-        assert_eq!(export(&state, None), puml);
+        assert_eq!(export(&mut state_exported), puml);
     }
 
     #[test]
     fn state_start() {
         let mut state = State::new(States::State1);
         state.set_kind(StateKind::Start);
+        let mut state_exported = StateExported::from(&state);
         let puml = format!("state {} <<start>>", state.alias);
-        assert_eq!(export(&state, None), puml);
+        assert_eq!(export(&mut state_exported), puml);
     }
 
     #[test]
     fn state_end() {
         let mut state = State::new(States::State1);
         state.set_kind(StateKind::End);
+        let mut state_exported = StateExported::from(&state);
         let puml = format!("state {} <<end>>", state.alias);
-        assert_eq!(export(&state, None), puml);
+        assert_eq!(export(&mut state_exported), puml);
     }
 
     #[test]
     fn state_fork() {
         let mut state = State::new(States::State1);
         state.set_kind(StateKind::Fork);
+        let mut state_exported = StateExported::from(&state);
         let puml = format!("state {} <<fork>>", state.alias);
-        assert_eq!(export(&state, None), puml);
+        assert_eq!(export(&mut state_exported), puml);
     }
 
     #[test]
     fn state_join() {
         let mut state = State::new(States::State1);
         state.set_kind(StateKind::Join);
+        let mut state_exported = StateExported::from(&state);
         let puml = format!("state {} <<join>>", state.alias);
-        assert_eq!(export(&state, None), puml);
+        assert_eq!(export(&mut state_exported), puml);
     }
 
     #[test]
     fn state_choice() {
         let mut state = State::new(States::State1);
         state.set_kind(StateKind::Choice);
+        let mut state_exported = StateExported::from(&state);
         let puml = format!("state {} <<choice>>", state.alias);
-        assert_eq!(export(&state, None), puml);
+        assert_eq!(export(&mut state_exported), puml);
     }
 
     #[test]
     fn description() {
         let mut state = State::new(States::State1);
         state.set_description("description");
+        let mut state_exported = StateExported::from(&state);
         let puml = format!(
             "state \"State1\" as {alias}
 {alias} : description",
             alias = state.alias,
         );
-        assert_eq!(export(&state, None), puml);
+        assert_eq!(export(&mut state_exported), puml);
     }
 
     #[test]
@@ -150,7 +160,8 @@ mod test {
 {alias} : desc line 3",
             alias = state1.alias
         );
-        assert_eq!(export(&state1, None), puml1);
+        let mut state_exported = StateExported::from(&state1);
+        assert_eq!(export(&mut state_exported), puml1);
 
         let desc2 = "ex2, desc line 1
 desc line 2
@@ -164,17 +175,26 @@ desc line 3";
 {alias} : desc line 3",
             alias = state2.alias
         );
-        assert_eq!(export(&state2, None), puml2);
+        let mut state_exported = StateExported::from(&state2);
+        assert_eq!(export(&mut state_exported), puml2);
     }
 
     //     #[test]
     //     fn internal_states() {
-    //         let state11 = State::new("state11").build();
-    //         let state12 = State::new("state12").build();
-    //         let state1 = State::new("main_state")
-    //             .add_internal_state(&state11)
-    //             .add_internal_state(&state12)
-    //             .build();
+    //         #[derive(Clone, Display)]
+    //         enum States {
+    //             State1,
+    //             State11,
+    //             State12,
+    //         }
+
+    //         let state1 = State::new(States::State1);
+
+    //         let mut state11 = State::new(States::State11);
+    //         state11.set_parent(States::State1);
+
+    //         let mut state12 = State::new(States::State12);
+    //         state12.set_parent(States::State1);
 
     //         let puml = format!(
     //             "state \"main_state\" as {} {{
@@ -183,6 +203,10 @@ desc line 3";
     // }}",
     //             state1.alias, state11.alias, state12.alias
     //         );
+
+    //         let all_states = vec![state1, state11, state12];
+    //         let all_states_exported = create_state_exported(&all_states);
+
     //         assert_eq!(export(&state1), puml);
     //     }
 }

@@ -3,70 +3,15 @@ use std::fmt::Display;
 
 use crate::domain::models::state_machine::{Diagram, State, Transition};
 
-use super::{state_exported::StateExported, state_to_puml, transition_to_puml};
+use super::{
+    state_exported::create_state_exported, state_exported::StateExported,
+    state_to_puml, transition_to_puml,
+};
 
-/*
-Проходим по всем состояниям диаграммы, создаем HashMap
-
-Проходим по всем состояниям диаграммы и заносим в internal_states алиасы вложенных состояний.
-
-Запускаем цикл по HashMap. Цикл выполняется, пока у всех состояний в поле export не будет значения.
-Если список internal_states пустой - делаем экспорт.
-Если список internal_states не пустой - проверяем все вложенные состояния, если у всех есть значение export, собираем все экспортированные значения в internal_states_exported и экспортируем данное состояние.
-
-*/
-
-fn export_states<TStates>(diagram: &Diagram<TStates>) -> String
+pub fn export<TStates>(diagram: &Diagram<TStates>) -> String
 where
     TStates: Clone + PartialEq + Display,
 {
-    let mut states_exported: HashMap<String, StateExported> = HashMap::new();
-
-    // инициализируем HashMap
-    for state in &diagram.states {
-        states_exported.insert(
-            String::from(&state.alias),
-            StateExported::new(&state.alias, state.parent_state.is_some()),
-        );
-    }
-
-    // заполняем внутренние состояния по parent_state
-    for state in &diagram.states {
-        match &state.parent_state {
-            Some(parent_state) => {
-                let se = states_exported
-                    .get_mut(parent_state)
-                    .expect("parent_state not found");
-                se.add_internal_state(&state.alias);
-            }
-            None => continue,
-        }
-    }
-
-    loop {
-        for state_exported in states_exported.values_mut() {
-            if state_exported.internal_states.len() == 0 {
-                let state = diagram.get_state(state_exported.alias);
-                state_exported.export = state_to_puml(diagram.get)
-            }
-        }
-        break;
-    }
-    // if states.len() == 0 {
-    //     return String::from("");
-    // }
-    // let states_str = states
-    //     .iter()
-    //     .map(|state| state_to_puml::export(state))
-    //     .collect::<Vec<String>>()
-    //     .join("\n");
-    // let states_str = format!("\n\n{}", states_str);
-    // states_str
-
-    String::from("")
-}
-
-pub fn export<TStates>(diagram: &Diagram<TStates>) -> String {
     format!(
         "@startuml{options}{states}{transitions}
 
@@ -76,6 +21,82 @@ pub fn export<TStates>(diagram: &Diagram<TStates>) -> String {
         // transitions = export_transitions(&diagram.transitions),
         transitions = "",
     )
+}
+
+fn export_states<TStates>(diagram: &Diagram<TStates>) -> String
+where
+    TStates: Clone + PartialEq + Display,
+{
+    let mut states_exported: HashMap<String, StateExported<TStates>> =
+        create_state_exported(&diagram.states);
+    let int_states_hash =
+        export_states_create_int_states_hash(&states_exported);
+    // сохраняем инфо в структурах
+    for (parent, int_states) in int_states_hash {
+        for int_state in int_states {
+            states_exported
+                .get_mut(&parent)
+                .unwrap()
+                .add_internal_state(&int_state);
+        }
+    }
+    loop {
+        // выходим, если все состояния экспортированы
+        if states_exported.values().all(|se| se.exported.is_some()) {
+            break;
+        }
+        let keys: Vec<String> = states_exported
+            .keys()
+            .map(|key| String::from(key))
+            .collect();
+        for key in keys {
+            let mut state_exported = states_exported.get_mut(&key).unwrap();
+            if state_exported.exported.is_some() {
+                continue;
+            }
+            if state_exported.internal_states.len()
+                != state_exported.internal_states_exported.len()
+            {
+                continue;
+            }
+            let exported = state_to_puml::export(&mut state_exported);
+            match state_exported.parent_state.clone() {
+                Some(value) => states_exported
+                    .get_mut(&value)
+                    .unwrap()
+                    .add_internal_state_exported(&exported),
+                None => continue,
+            }
+        }
+    }
+
+    let mut result = states_exported
+        .values_mut()
+        .filter(|state| state.parent_state.is_none())
+        .map(|state| String::from(state.exported.as_ref().unwrap()))
+        .collect::<Vec<String>>();
+    result.sort();
+    let result = result.join("\n");
+    format!("\n\n{}", result)
+}
+
+fn export_states_create_int_states_hash<TStates>(
+    states_exported: &HashMap<String, StateExported<TStates>>,
+) -> HashMap<String, Vec<String>> {
+    let mut int_states: HashMap<String, Vec<String>> = HashMap::new();
+    for (state_alias, state_exported) in states_exported.iter() {
+        let parent_state = state_exported.parent_state.clone();
+        match parent_state {
+            Some(value) => {
+                int_states
+                    .entry(value)
+                    .or_default()
+                    .push(String::from(state_alias));
+            }
+            None => continue,
+        }
+    }
+    int_states
 }
 
 fn export_options(hide_empty_description: bool) -> String {
@@ -91,20 +112,20 @@ fn export_options(hide_empty_description: bool) -> String {
     collect_str
 }
 
-// fn export_transitions<TStates>(
-//     transitions: &Vec<&Transition<TStates>>,
-// ) -> String {
-//     if transitions.len() == 0 {
-//         return String::from("");
-//     }
-//     let trans_str = transitions
-//         .iter()
-//         .map(|transition| transition_to_puml::export(transition, ))
-//         .collect::<Vec<String>>()
-//         .join("\n");
-//     let trans_str = format!("\n\n{}", trans_str);
-//     trans_str<TStates><TStates>
-// }
+fn export_transitions<TStates>(
+    transitions: &Vec<&Transition<TStates>>,
+) -> String {
+    if transitions.len() == 0 {
+        return String::from("");
+    }
+    let trans_str = transitions
+        .iter()
+        .map(|transition| transition_to_puml::export(transition, ))
+        .collect::<Vec<String>>()
+        .join("\n");
+    let trans_str = format!("\n\n{}", trans_str);
+    trans_str<TStates><TStates>
+}
 
 #[cfg(test)]
 mod tests {
@@ -118,6 +139,29 @@ mod tests {
         State2,
         State21,
         State22,
+    }
+
+    #[test]
+    fn export_states_create_int_states_hash_test() {
+        let mut dia = Diagram::<States>::new();
+        dia.add_state(States::State1);
+        dia.add_state(States::State2);
+        dia.add_state(States::State21).set_parent(States::State2);
+        dia.add_state(States::State22).set_parent(States::State2);
+
+        let state_expored = create_state_exported(&dia.states);
+        let hash = export_states_create_int_states_hash(&state_expored);
+        assert_eq!(hash.len(), 1);
+        assert!(hash.get("State1").is_none());
+        assert!(hash.get("State2").is_some());
+        assert!(hash
+            .get("State2")
+            .unwrap()
+            .contains(&String::from("State21")));
+        assert!(hash
+            .get("State2")
+            .unwrap()
+            .contains(&String::from("State22")));
     }
 
     #[test]
@@ -158,10 +202,10 @@ hide empty description
         let puml = format!(
             "@startuml
 
-state \"state1\" as {0}
-state \"state2\" as {1} {{
-    state \"state21\" as {2}
-    state \"state22\" as {3}
+state \"State1\" as {0}
+state \"State2\" as {1} {{
+    state \"State21\" as {2}
+    state \"State22\" as {3}
 }}
 
 {0} --> {1} : line 1\\nline 2
