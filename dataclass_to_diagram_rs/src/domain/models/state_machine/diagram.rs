@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use super::super::super::traits::ExportMetadata;
+
 use super::{state::State, transition::Transition};
 
 pub struct Diagram<TStates> {
@@ -58,6 +60,13 @@ where
             .expect("state in Diagram not created")
     }
 }
+
+impl<TStates> ExportMetadata for Diagram<TStates> {
+    fn export_metadata(&self) -> String {
+        String::from("state_machine")
+    }
+}
+
 #[cfg(test)]
 mod test {
     use derive_more::Display;
