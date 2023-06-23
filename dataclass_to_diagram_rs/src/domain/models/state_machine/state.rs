@@ -4,6 +4,7 @@ use std::fmt::Display;
 pub struct State<TStates> {
     pub item_in_enum: TStates,
     pub alias: String,
+    pub name: String,
     pub kind: StateKind,
     pub description: Option<String>,
     pub parent_state: Option<String>,
@@ -28,7 +29,8 @@ where
         let alias = format!("{}", item_in_enum);
         Self {
             item_in_enum,
-            alias,
+            alias: alias.clone(),
+            name: alias.clone(),
             kind: StateKind::General,
             description: None,
             parent_state: None,
@@ -47,6 +49,11 @@ where
 
     pub fn set_kind(&mut self, kind: StateKind) -> &mut Self {
         self.kind = kind;
+        self
+    }
+
+    pub fn set_name(&mut self, name: &str) -> &mut Self {
+        self.name = String::from(name);
         self
     }
 }

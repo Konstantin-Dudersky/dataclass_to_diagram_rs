@@ -8,11 +8,11 @@ use super::state_export::StateExport;
 pub fn export<TStates>(state: &mut StateExport<TStates>) -> String {
     let exported = match state.kind {
         StateKind::General => format!(
-            "state \"{alias}\" as {alias}{internal_states}{description}",
+            "state \"{name}\" as {alias}{internal_states}{description}",
+            name = state.name,
             alias = state.alias,
             internal_states =
                 export_internal_states(&mut state.internal_states_exported),
-            // internal_states = String::from(""),
             description =
                 export_description(&state.alias, state.description.as_deref())
         ),

@@ -155,7 +155,7 @@ mod tests {
 
     #[test]
     fn empty() {
-        let dia = Diagram::<States>::new();
+        let dia = Diagram::<States>::new("dia");
         let puml = "@startuml
 
 @enduml";
@@ -164,7 +164,7 @@ mod tests {
 
     #[test]
     fn hide_empty_description() {
-        let mut dia = Diagram::<States>::new();
+        let mut dia = Diagram::<States>::new("dia");
         dia.set_hide_empty_description(true);
         let puml = "@startuml
 
@@ -176,7 +176,7 @@ hide empty description
 
     #[test]
     fn export_states_create_int_states_hash_test() {
-        let mut dia = Diagram::<States>::new();
+        let mut dia = Diagram::<States>::new("dia");
         dia.add_state(States::State1);
         dia.add_state(States::State2);
         dia.add_state(States::State21).set_parent(States::State2);
@@ -200,7 +200,7 @@ hide empty description
     #[test]
     fn full() {
         // states
-        let mut dia = Diagram::<States>::new();
+        let mut dia = Diagram::<States>::new("dia");
         dia.add_state(States::State1);
         dia.add_state(States::State2);
         dia.add_state(States::State21).set_parent(States::State2);

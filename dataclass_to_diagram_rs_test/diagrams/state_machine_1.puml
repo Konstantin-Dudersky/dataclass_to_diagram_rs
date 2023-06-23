@@ -1,0 +1,15 @@
+@startuml
+
+state "State1" as State1
+State1 : this is string
+State1 : this is another string
+state "State2" as State2
+state End <<end>>
+state Start <<start>>
+
+Start --> State1
+State1 --> State2
+State1 --> End
+State2 --> End
+
+@enduml

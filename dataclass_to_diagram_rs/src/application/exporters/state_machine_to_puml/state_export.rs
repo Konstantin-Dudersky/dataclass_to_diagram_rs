@@ -6,6 +6,7 @@ use crate::domain::models::state_machine::{State, StateKind};
 pub struct StateExport<TStates> {
     pub item_in_enum: TStates,
     pub alias: String,
+    pub name: String,
     pub kind: StateKind,
     pub description: Option<String>,
     pub internal_states: Vec<String>,
@@ -23,6 +24,7 @@ where
             item_in_enum: state.item_in_enum.clone(),
             internal_states: vec![],
             alias: state.alias.clone(),
+            name: state.name.clone(),
             kind: state.kind.clone(),
             description: state.description.clone(),
             internal_states_exported: vec![],
@@ -88,7 +90,7 @@ mod tests {
 
     #[test]
     fn create_state_exported_test() {
-        let mut dia = Diagram::<States>::new();
+        let mut dia = Diagram::<States>::new("dia");
         dia.add_state(States::State1);
         dia.add_state(States::State1_1).set_parent(States::State1);
         dia.add_state(States::State1_2).set_parent(States::State1);

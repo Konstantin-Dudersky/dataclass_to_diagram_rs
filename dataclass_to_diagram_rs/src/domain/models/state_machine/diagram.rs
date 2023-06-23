@@ -1,10 +1,9 @@
 use std::fmt::Display;
 
-use super::super::super::traits::ExportMetadata;
-
 use super::{state::State, transition::Transition};
 
 pub struct Diagram<TStates> {
+    pub filename: String,
     pub states: Vec<State<TStates>>,
     pub transitions: Vec<Transition<TStates>>,
     pub hide_empty_description: bool,
@@ -14,8 +13,9 @@ impl<TStates> Diagram<TStates>
 where
     TStates: Clone + Display + PartialEq,
 {
-    pub fn new() -> Self {
+    pub fn new(filename: &str) -> Self {
         Self {
+            filename: String::from(filename),
             states: vec![],
             transitions: vec![],
             hide_empty_description: false,
@@ -61,12 +61,6 @@ where
     }
 }
 
-impl<TStates> ExportMetadata for Diagram<TStates> {
-    fn export_metadata(&self) -> String {
-        String::from("state_machine")
-    }
-}
-
 #[cfg(test)]
 mod test {
     use derive_more::Display;
@@ -82,7 +76,7 @@ mod test {
             State1,
             State2,
         }
-        let mut dia1 = Diagram::<States>::new();
+        let mut dia1 = Diagram::<States>::new("dia1");
 
         dia1.add_state(States::State1)
             .set_description("desc1")
@@ -110,7 +104,7 @@ mod test {
             State1,
             State2,
         }
-        let mut dia1 = Diagram::<States>::new();
+        let mut dia1 = Diagram::<States>::new("dia");
 
         let trans = dia1
             .add_transition(States::State1, States::State2)
@@ -131,7 +125,7 @@ mod test {
         #[derive(Clone, Debug, Display, PartialEq)]
         enum States {}
 
-        let mut dia = Diagram::<States>::new();
+        let mut dia = Diagram::<States>::new("dia");
 
         assert_eq!(dia.hide_empty_description, false);
 
