@@ -41,10 +41,17 @@ where
     pub fn add_state(&mut self, alias: TStates) -> &mut State<TStates> {
         let new_state = State::new(alias.clone());
         self.states.push(new_state);
-        self.get_state(alias)
+        self.get_state_mut(alias)
     }
 
-    pub fn get_state(&mut self, name: TStates) -> &mut State<TStates> {
+    pub fn get_state(&self, name: TStates) -> &State<TStates> {
+        self.states
+            .iter()
+            .find(|state| state.item_in_enum == name)
+            .expect("state in Diagram not created")
+    }
+
+    pub fn get_state_mut(&mut self, name: TStates) -> &mut State<TStates> {
         self.states
             .iter_mut()
             .find(|state| state.item_in_enum == name)
@@ -77,12 +84,12 @@ mod test {
 
         dia1.add_transition(States::State1, States::State2);
 
-        let state1 = dia1.get_state(States::State1);
+        let state1 = dia1.get_state_mut(States::State1);
         assert_eq!(state1.alias, "State1");
         assert_eq!(state1.description.as_ref().unwrap(), "desc1");
         assert_eq!(state1.kind, StateKind::Choice);
 
-        let state2 = dia1.get_state(States::State2);
+        let state2 = dia1.get_state_mut(States::State2);
         assert_eq!(state2.description.as_ref().unwrap(), "desc4");
         assert_eq!(state2.kind, StateKind::General);
     }

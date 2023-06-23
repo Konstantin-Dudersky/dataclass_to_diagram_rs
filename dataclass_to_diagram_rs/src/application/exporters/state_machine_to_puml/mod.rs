@@ -1,4 +1,5 @@
 mod diagram_to_puml;
-mod state_exported;
+mod state_export;
 mod state_to_puml;
+mod transition_export;
 mod transition_to_puml;

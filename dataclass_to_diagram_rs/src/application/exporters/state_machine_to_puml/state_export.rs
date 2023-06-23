@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::domain::models::state_machine::{State, StateKind};
 
 #[derive(Debug)]
-pub struct StateExported<TStates> {
+pub struct StateExport<TStates> {
     pub item_in_enum: TStates,
     pub alias: String,
     pub kind: StateKind,
@@ -14,7 +14,7 @@ pub struct StateExported<TStates> {
     pub parent_state: Option<String>,
 }
 
-impl<TStates> StateExported<TStates>
+impl<TStates> StateExport<TStates>
 where
     TStates: Clone,
 {
@@ -46,13 +46,13 @@ where
 
 pub fn create_state_exported<TStates>(
     states: &Vec<State<TStates>>,
-) -> HashMap<String, StateExported<TStates>>
+) -> HashMap<String, StateExport<TStates>>
 where
     TStates: Clone,
 {
     let mut hash = HashMap::new();
     for state in states.iter() {
-        let state_exported = StateExported::from(state);
+        let state_exported = StateExport::from(state);
         hash.insert(state_exported.alias.clone(), state_exported);
     }
     hash
@@ -80,7 +80,7 @@ mod tests {
         let mut state = State::new(States::State1);
         state.set_kind(StateKind::Choice);
 
-        let exported_state = StateExported::from(&state);
+        let exported_state = StateExport::from(&state);
 
         assert_eq!(exported_state.alias, "State1");
         assert_eq!(exported_state.kind, StateKind::Choice);

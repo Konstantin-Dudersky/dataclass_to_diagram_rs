@@ -1,16 +1,12 @@
-use crate::domain::models::state_machine::{
-    State, Transition, TransitionOption,
-};
+use crate::domain::models::state_machine::TransitionOption;
 
-pub fn export<TStates>(
-    transition: &Transition<TStates>,
-    begin: &State<TStates>,
-    end: &State<TStates>,
-) -> String {
+use super::transition_export::TransitionExport;
+
+pub fn export(transition: &TransitionExport) -> String {
     format!(
         "{begin} --> {end}{option}{description}",
-        begin = begin.alias,
-        end = end.alias,
+        begin = transition.begin_alias,
+        end = transition.end_alias,
         option = export_option(&transition.option),
         description = export_description(transition.description.as_deref()),
     )
@@ -35,6 +31,8 @@ fn export_description(description: Option<&str>) -> String {
 mod tests {
     use derive_more::Display;
 
+    use crate::domain::models::state_machine::{State, Transition};
+
     use super::*;
 
     #[derive(Display)]
@@ -48,8 +46,10 @@ mod tests {
         let st1 = State::new(States::State1);
         let st2 = State::new(States::State2);
         let trans = Transition::new(States::State1, States::State2);
+        let trans_export =
+            TransitionExport::from(&trans, &st1.alias, &st2.alias);
         let puml = format!("{} --> {}", st1.alias, st2.alias);
-        assert_eq!(export(&trans, &st1, &st2), puml);
+        assert_eq!(export(&trans_export), puml);
     }
 
     #[test]
@@ -58,9 +58,11 @@ mod tests {
         let st2 = State::new(States::State2);
         let mut trans = Transition::new(States::State1, States::State2);
         trans.set_description("description");
+        let trans_export =
+            TransitionExport::from(&trans, &st1.alias, &st2.alias);
 
         let puml = format!("{} --> {} : description", st1.alias, st2.alias);
-        assert_eq!(export(&trans, &st1, &st2), puml);
+        assert_eq!(export(&trans_export), puml);
     }
 
     #[test]
@@ -69,9 +71,11 @@ mod tests {
         let st2 = State::new(States::State2);
         let mut trans = Transition::new(States::State1, States::State2);
         trans.set_description("line 1\nline 2");
+        let trans_export =
+            TransitionExport::from(&trans, &st1.alias, &st2.alias);
 
         let puml = format!("{} --> {} : line 1\\nline 2", st1.alias, st2.alias);
-        assert_eq!(export(&trans, &st1, &st2), puml);
+        assert_eq!(export(&trans_export), puml);
     }
 
     #[test]
@@ -80,8 +84,10 @@ mod tests {
         let st2 = State::new(States::State2);
         let mut trans = Transition::new(States::State1, States::State2);
         trans.set_option(TransitionOption::History);
+        let trans_export =
+            TransitionExport::from(&trans, &st1.alias, &st2.alias);
 
         let puml = format!("{} --> {}[H]", st1.alias, st2.alias);
-        assert_eq!(export(&trans, &st1, &st2), puml);
+        assert_eq!(export(&trans_export), puml);
     }
 }

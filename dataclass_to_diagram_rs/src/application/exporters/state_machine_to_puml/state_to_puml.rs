@@ -1,10 +1,11 @@
-use super::super::utils::increase_indent::increase_indent;
+use itertools::Itertools;
 
 use crate::domain::models::state_machine::StateKind;
 
-use super::state_exported::StateExported;
+use super::super::utils::increase_indent::increase_indent;
+use super::state_export::StateExport;
 
-pub fn export<TStates>(state: &mut StateExported<TStates>) -> String {
+pub fn export<TStates>(state: &mut StateExport<TStates>) -> String {
     let exported = match state.kind {
         StateKind::General => format!(
             "state \"{alias}\" as {alias}{internal_states}{description}",
@@ -61,8 +62,7 @@ fn export_internal_states(internal_states: &mut Vec<String>) -> String {
     if internal_states.len() == 0 {
         return String::from("");
     }
-    internal_states.sort();
-    let internal_states_string = internal_states.join("\n");
+    let internal_states_string = internal_states.iter().sorted().join("\n");
     let internal_states_string = increase_indent(&internal_states_string);
     format!(" {{\n{}\n}}", internal_states_string)
 }
@@ -85,7 +85,7 @@ mod test {
     #[test]
     fn minimal() {
         let state = State::new(States::State1);
-        let mut state_exported = StateExported::from(&state);
+        let mut state_exported = StateExport::from(&state);
         let puml = format!("state \"State1\" as {}", state.alias);
         assert_eq!(export(&mut state_exported), puml);
     }
@@ -94,7 +94,7 @@ mod test {
     fn state_start() {
         let mut state = State::new(States::State1);
         state.set_kind(StateKind::Start);
-        let mut state_exported = StateExported::from(&state);
+        let mut state_exported = StateExport::from(&state);
         let puml = format!("state {} <<start>>", state.alias);
         assert_eq!(export(&mut state_exported), puml);
     }
@@ -103,7 +103,7 @@ mod test {
     fn state_end() {
         let mut state = State::new(States::State1);
         state.set_kind(StateKind::End);
-        let mut state_exported = StateExported::from(&state);
+        let mut state_exported = StateExport::from(&state);
         let puml = format!("state {} <<end>>", state.alias);
         assert_eq!(export(&mut state_exported), puml);
     }
@@ -112,7 +112,7 @@ mod test {
     fn state_fork() {
         let mut state = State::new(States::State1);
         state.set_kind(StateKind::Fork);
-        let mut state_exported = StateExported::from(&state);
+        let mut state_exported = StateExport::from(&state);
         let puml = format!("state {} <<fork>>", state.alias);
         assert_eq!(export(&mut state_exported), puml);
     }
@@ -121,7 +121,7 @@ mod test {
     fn state_join() {
         let mut state = State::new(States::State1);
         state.set_kind(StateKind::Join);
-        let mut state_exported = StateExported::from(&state);
+        let mut state_exported = StateExport::from(&state);
         let puml = format!("state {} <<join>>", state.alias);
         assert_eq!(export(&mut state_exported), puml);
     }
@@ -130,7 +130,7 @@ mod test {
     fn state_choice() {
         let mut state = State::new(States::State1);
         state.set_kind(StateKind::Choice);
-        let mut state_exported = StateExported::from(&state);
+        let mut state_exported = StateExport::from(&state);
         let puml = format!("state {} <<choice>>", state.alias);
         assert_eq!(export(&mut state_exported), puml);
     }
@@ -139,7 +139,7 @@ mod test {
     fn description() {
         let mut state = State::new(States::State1);
         state.set_description("description");
-        let mut state_exported = StateExported::from(&state);
+        let mut state_exported = StateExport::from(&state);
         let puml = format!(
             "state \"State1\" as {alias}
 {alias} : description",
@@ -160,7 +160,7 @@ mod test {
 {alias} : desc line 3",
             alias = state1.alias
         );
-        let mut state_exported = StateExported::from(&state1);
+        let mut state_exported = StateExport::from(&state1);
         assert_eq!(export(&mut state_exported), puml1);
 
         let desc2 = "ex2, desc line 1
@@ -175,7 +175,7 @@ desc line 3";
 {alias} : desc line 3",
             alias = state2.alias
         );
-        let mut state_exported = StateExported::from(&state2);
+        let mut state_exported = StateExport::from(&state2);
         assert_eq!(export(&mut state_exported), puml2);
     }
 

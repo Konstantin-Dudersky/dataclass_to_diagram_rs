@@ -1,16 +1,18 @@
 use std::collections::HashMap;
 use std::fmt::Display;
 
-use crate::domain::models::state_machine::{Diagram, State, Transition};
+use itertools::Itertools;
+
+use crate::domain::models::state_machine::Diagram;
 
 use super::{
-    state_exported::create_state_exported, state_exported::StateExported,
-    state_to_puml, transition_to_puml,
+    state_export::create_state_exported, state_export::StateExport,
+    state_to_puml, transition_export::TransitionExport, transition_to_puml,
 };
 
 pub fn export<TStates>(diagram: &Diagram<TStates>) -> String
 where
-    TStates: Clone + PartialEq + Display,
+    TStates: Clone + Copy + PartialEq + Display,
 {
     format!(
         "@startuml{options}{states}{transitions}
@@ -18,8 +20,7 @@ where
 @enduml",
         options = export_options(diagram.hide_empty_description),
         states = export_states(&diagram),
-        // transitions = export_transitions(&diagram.transitions),
-        transitions = "",
+        transitions = export_transitions(&diagram),
     )
 }
 
@@ -27,12 +28,15 @@ fn export_states<TStates>(diagram: &Diagram<TStates>) -> String
 where
     TStates: Clone + PartialEq + Display,
 {
-    let mut states_exported: HashMap<String, StateExported<TStates>> =
+    if diagram.states.len() == 0 {
+        return String::from("");
+    }
+    let mut states_exported: HashMap<String, StateExport<TStates>> =
         create_state_exported(&diagram.states);
-    let int_states_hash =
-        export_states_create_int_states_hash(&states_exported);
+    let parent_with_internal =
+        export_states_parent_with_internal(&states_exported);
     // сохраняем инфо в структурах
-    for (parent, int_states) in int_states_hash {
+    for (parent, int_states) in parent_with_internal {
         for int_state in int_states {
             states_exported
                 .get_mut(&parent)
@@ -70,18 +74,18 @@ where
         }
     }
 
-    let mut result = states_exported
-        .values_mut()
+    let result = states_exported
+        .values()
         .filter(|state| state.parent_state.is_none())
         .map(|state| String::from(state.exported.as_ref().unwrap()))
-        .collect::<Vec<String>>();
-    result.sort();
-    let result = result.join("\n");
+        .sorted()
+        .collect::<Vec<String>>()
+        .join("\n");
     format!("\n\n{}", result)
 }
 
-fn export_states_create_int_states_hash<TStates>(
-    states_exported: &HashMap<String, StateExported<TStates>>,
+fn export_states_parent_with_internal<TStates>(
+    states_exported: &HashMap<String, StateExport<TStates>>,
 ) -> HashMap<String, Vec<String>> {
     let mut int_states: HashMap<String, Vec<String>> = HashMap::new();
     for (state_alias, state_exported) in states_exported.iter() {
@@ -112,19 +116,27 @@ fn export_options(hide_empty_description: bool) -> String {
     collect_str
 }
 
-fn export_transitions<TStates>(
-    transitions: &Vec<&Transition<TStates>>,
-) -> String {
-    if transitions.len() == 0 {
+fn export_transitions<TStates>(diagram: &Diagram<TStates>) -> String
+where
+    TStates: Clone + Copy + PartialEq + Display,
+{
+    if diagram.transitions.len() == 0 {
         return String::from("");
     }
-    let trans_str = transitions
+    let mut transitions_export: Vec<TransitionExport> = vec![];
+
+    for tr in &diagram.transitions {
+        let begin = diagram.get_state(tr.begin).alias.clone();
+        let end = diagram.get_state(tr.end).alias.clone();
+        let tr_export = TransitionExport::from(tr, &begin, &end);
+        transitions_export.push(tr_export);
+    }
+    let result = transitions_export
         .iter()
-        .map(|transition| transition_to_puml::export(transition, ))
+        .map(|tr| transition_to_puml::export(tr))
         .collect::<Vec<String>>()
         .join("\n");
-    let trans_str = format!("\n\n{}", trans_str);
-    trans_str<TStates><TStates>
+    format!("\n\n{}", result)
 }
 
 #[cfg(test)]
@@ -133,35 +145,12 @@ mod tests {
 
     use super::*;
 
-    #[derive(Clone, Display, PartialEq)]
+    #[derive(Clone, Copy, Display, PartialEq)]
     enum States {
         State1,
         State2,
         State21,
         State22,
-    }
-
-    #[test]
-    fn export_states_create_int_states_hash_test() {
-        let mut dia = Diagram::<States>::new();
-        dia.add_state(States::State1);
-        dia.add_state(States::State2);
-        dia.add_state(States::State21).set_parent(States::State2);
-        dia.add_state(States::State22).set_parent(States::State2);
-
-        let state_expored = create_state_exported(&dia.states);
-        let hash = export_states_create_int_states_hash(&state_expored);
-        assert_eq!(hash.len(), 1);
-        assert!(hash.get("State1").is_none());
-        assert!(hash.get("State2").is_some());
-        assert!(hash
-            .get("State2")
-            .unwrap()
-            .contains(&String::from("State21")));
-        assert!(hash
-            .get("State2")
-            .unwrap()
-            .contains(&String::from("State22")));
     }
 
     #[test]
@@ -183,6 +172,29 @@ hide empty description
 
 @enduml";
         assert_eq!(export(&dia), puml);
+    }
+
+    #[test]
+    fn export_states_create_int_states_hash_test() {
+        let mut dia = Diagram::<States>::new();
+        dia.add_state(States::State1);
+        dia.add_state(States::State2);
+        dia.add_state(States::State21).set_parent(States::State2);
+        dia.add_state(States::State22).set_parent(States::State2);
+
+        let state_expored = create_state_exported(&dia.states);
+        let hash = export_states_parent_with_internal(&state_expored);
+        assert_eq!(hash.len(), 1);
+        assert!(hash.get("State1").is_none());
+        assert!(hash.get("State2").is_some());
+        assert!(hash
+            .get("State2")
+            .unwrap()
+            .contains(&String::from("State21")));
+        assert!(hash
+            .get("State2")
+            .unwrap()
+            .contains(&String::from("State22")));
     }
 
     #[test]

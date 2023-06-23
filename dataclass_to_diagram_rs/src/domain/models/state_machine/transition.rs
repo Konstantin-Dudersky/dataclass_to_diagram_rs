@@ -5,7 +5,7 @@ pub struct Transition<TStates> {
     pub option: TransitionOption,
 }
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub enum TransitionOption {
     #[default]
     No,
