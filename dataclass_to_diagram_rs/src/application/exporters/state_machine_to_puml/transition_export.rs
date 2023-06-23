@@ -38,8 +38,8 @@ mod tests {
 
     #[test]
     fn from() {
-        let state1 = State::new(States::State1);
-        let state2 = State::new(States::State2);
+        let state1 = State::new(States::State1, 0);
+        let state2 = State::new(States::State2, 1);
         let tr = Transition::new(States::State1, States::State2);
         let _ = TransitionExport::from(&tr, &state1.alias, &state2.alias);
     }

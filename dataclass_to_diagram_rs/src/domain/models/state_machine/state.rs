@@ -4,6 +4,7 @@ use std::fmt::Display;
 pub struct State<TStates> {
     pub item_in_enum: TStates,
     pub alias: String,
+    pub order: u32,
     pub name: String,
     pub kind: StateKind,
     pub description: Option<String>,
@@ -25,11 +26,12 @@ impl<TStates> State<TStates>
 where
     TStates: Display,
 {
-    pub fn new(item_in_enum: TStates) -> Self {
+    pub fn new(item_in_enum: TStates, order: u32) -> Self {
         let alias = format!("{}", item_in_enum);
         Self {
             item_in_enum,
             alias: alias.clone(),
+            order: order,
             name: alias.clone(),
             kind: StateKind::General,
             description: None,
@@ -72,7 +74,7 @@ mod test {
 
     #[test]
     fn state() {
-        let mut state = State::new(States::State1);
+        let mut state = State::new(States::State1, 0);
         state
             .set_description("state description")
             .set_kind(StateKind::End);
@@ -84,7 +86,7 @@ mod test {
 
     #[test]
     fn parent_state() {
-        let mut state = State::new(States::State1);
+        let mut state = State::new(States::State1, 0);
         assert!(state.parent_state.is_none());
 
         state.set_parent(States::State2);

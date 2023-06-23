@@ -43,8 +43,8 @@ mod tests {
 
     #[test]
     fn minimal() {
-        let st1 = State::new(States::State1);
-        let st2 = State::new(States::State2);
+        let st1 = State::new(States::State1, 0);
+        let st2 = State::new(States::State2, 1);
         let trans = Transition::new(States::State1, States::State2);
         let trans_export =
             TransitionExport::from(&trans, &st1.alias, &st2.alias);
@@ -54,8 +54,8 @@ mod tests {
 
     #[test]
     fn with_description() {
-        let st1 = State::new(States::State1);
-        let st2 = State::new(States::State2);
+        let st1 = State::new(States::State1, 0);
+        let st2 = State::new(States::State2, 1);
         let mut trans = Transition::new(States::State1, States::State2);
         trans.set_description("description");
         let trans_export =
@@ -67,8 +67,8 @@ mod tests {
 
     #[test]
     fn test_with_description_multiline() {
-        let st1 = State::new(States::State1);
-        let st2 = State::new(States::State2);
+        let st1 = State::new(States::State1, 0);
+        let st2 = State::new(States::State2, 1);
         let mut trans = Transition::new(States::State1, States::State2);
         trans.set_description("line 1\nline 2");
         let trans_export =
@@ -80,8 +80,8 @@ mod tests {
 
     #[test]
     fn option_history() {
-        let st1 = State::new(States::State1);
-        let st2 = State::new(States::State2);
+        let st1 = State::new(States::State1, 0);
+        let st2 = State::new(States::State2, 1);
         let mut trans = Transition::new(States::State1, States::State2);
         trans.set_option(TransitionOption::History);
         let trans_export =

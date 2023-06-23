@@ -6,11 +6,12 @@ use crate::domain::models::state_machine::{State, StateKind};
 pub struct StateExport<TStates> {
     pub item_in_enum: TStates,
     pub alias: String,
+    pub order: u32,
     pub name: String,
     pub kind: StateKind,
     pub description: Option<String>,
     pub internal_states: Vec<String>,
-    pub internal_states_exported: Vec<String>,
+    pub internal_states_exported: Vec<InternalStateExport>,
     pub exported: Option<String>,
     pub parent_state: Option<String>,
 }
@@ -24,6 +25,7 @@ where
             item_in_enum: state.item_in_enum.clone(),
             internal_states: vec![],
             alias: state.alias.clone(),
+            order: state.order,
             name: state.name.clone(),
             kind: state.kind.clone(),
             description: state.description.clone(),
@@ -37,13 +39,18 @@ where
         self.internal_states.push(String::from(internal_state));
     }
 
-    pub fn add_internal_state_exported(
-        &mut self,
-        internal_state_exported: &str,
-    ) {
-        self.internal_states_exported
-            .push(String::from(internal_state_exported));
+    pub fn add_internal_state_exported(&mut self, order: u32, exported: &str) {
+        self.internal_states_exported.push(InternalStateExport {
+            order,
+            exported: String::from(exported),
+        });
     }
+}
+
+#[derive(Debug)]
+pub struct InternalStateExport {
+    pub order: u32,
+    pub exported: String,
 }
 
 pub fn create_state_exported<TStates>(
@@ -79,7 +86,7 @@ mod tests {
 
     #[test]
     fn from() {
-        let mut state = State::new(States::State1);
+        let mut state = State::new(States::State1, 0);
         state.set_kind(StateKind::Choice);
 
         let exported_state = StateExport::from(&state);

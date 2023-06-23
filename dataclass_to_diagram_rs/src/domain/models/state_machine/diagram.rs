@@ -41,7 +41,7 @@ where
     }
 
     pub fn add_state(&mut self, alias: TStates) -> &mut State<TStates> {
-        let new_state = State::new(alias.clone());
+        let new_state = State::new(alias.clone(), self.states.len() as u32);
         self.states.push(new_state);
         self.get_state_mut(alias)
     }

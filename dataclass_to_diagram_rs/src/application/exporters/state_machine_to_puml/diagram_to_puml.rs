@@ -64,11 +64,12 @@ where
                 continue;
             }
             let exported = state_to_puml::export(&mut state_exported);
+            let order = state_exported.order;
             match state_exported.parent_state.clone() {
                 Some(value) => states_exported
                     .get_mut(&value)
                     .unwrap()
-                    .add_internal_state_exported(&exported),
+                    .add_internal_state_exported(order, &exported),
                 None => continue,
             }
         }
@@ -77,8 +78,8 @@ where
     let result = states_exported
         .values()
         .filter(|state| state.parent_state.is_none())
+        .sorted_by(|a, b| a.order.cmp(&b.order))
         .map(|state| String::from(state.exported.as_ref().unwrap()))
-        .sorted()
         .collect::<Vec<String>>()
         .join("\n");
     format!("\n\n{}", result)

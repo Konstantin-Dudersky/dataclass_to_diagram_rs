@@ -1,27 +1,27 @@
 @startuml
 
-state "NotShooting" as _2NotShooting {
-    state "Configuring" as _5NotShootingConfiguring {
-        state "NewValuePreview" as _8NotShootingConfiguringNewValuePreview {
-            state "State1" as _9NotShootingConfiguringNewValuePreviewState1
-            state "State2" as _10NotShootingConfiguringNewValuePreviewState2
+state Start <<start>>
+state "NotShooting" as NotShooting {
+    state NotShootingStart <<start>>
+    state "Idle" as NotShootingIdle
+    state "Configuring" as NotShootingConfiguring {
+        state NotShootingConfiguringStart <<start>>
+        state "NewValueSelection" as NotShootingConfiguringNewValueSelection
+        state "NewValuePreview" as NotShootingConfiguringNewValuePreview {
+            state "State1" as NotShootingConfiguringNewValuePreviewState1
+            state "State2" as NotShootingConfiguringNewValuePreviewState2
         }
-        state "NewValueSelection" as _7NotShootingConfiguringNewValueSelection
-        state _6NotShootingConfiguringStart <<start>>
     }
-    state "Idle" as _4NotShootingIdle
-    state _3NotShootingStart <<start>>
 }
-state _1Start <<start>>
 
-_1Start --> _2NotShooting
-_3NotShootingStart --> _4NotShootingIdle
-_4NotShootingIdle --> _5NotShootingConfiguring : EvConfig
-_5NotShootingConfiguring --> _4NotShootingIdle : EvConfig
-_6NotShootingConfiguringStart --> _7NotShootingConfiguringNewValueSelection
-_7NotShootingConfiguringNewValueSelection --> _8NotShootingConfiguringNewValuePreview : EvNewValue
-_8NotShootingConfiguringNewValuePreview --> _7NotShootingConfiguringNewValueSelection : EvNewValueRejected
-_8NotShootingConfiguringNewValuePreview --> _7NotShootingConfiguringNewValueSelection : EvNewValueSaved
-_9NotShootingConfiguringNewValuePreviewState1 --> _10NotShootingConfiguringNewValuePreviewState2 : EvNewValueSaved
+Start --> NotShooting
+NotShootingStart --> NotShootingIdle
+NotShootingIdle --> NotShootingConfiguring : EvConfig
+NotShootingConfiguring --> NotShootingIdle : EvConfig
+NotShootingConfiguringStart --> NotShootingConfiguringNewValueSelection
+NotShootingConfiguringNewValueSelection --> NotShootingConfiguringNewValuePreview : EvNewValue
+NotShootingConfiguringNewValuePreview --> NotShootingConfiguringNewValueSelection : EvNewValueRejected
+NotShootingConfiguringNewValuePreview --> NotShootingConfiguringNewValueSelection : EvNewValueSaved
+NotShootingConfiguringNewValuePreviewState1 --> NotShootingConfiguringNewValuePreviewState2 : EvNewValueSaved
 
 @enduml
