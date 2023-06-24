@@ -7,7 +7,7 @@ state "State3" as State3 {
     state State3History <<history>>
     state State3DeepHistory <<history*>>
     state State3Start <<start>>
-    state "Accumulate Enough Data\nLong State Name" as State3Accum
+    state "Accumulate Enough Data" as State3Accum
     State3Accum : Just a test
     state "PrecessData" as State3ProcessData
 }

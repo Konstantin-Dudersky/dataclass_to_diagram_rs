@@ -10,5 +10,6 @@ fn main() {
         Box::new(state_machine::_4_substate_to_substate::create()),
         Box::new(state_machine::_5_long_name::create()),
         Box::new(state_machine::_6_history::create()),
+        Box::new(state_machine::_7_fork_join::create()),
     ]);
 }

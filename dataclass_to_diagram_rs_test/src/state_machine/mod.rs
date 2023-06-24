@@ -4,3 +4,4 @@ pub mod _3_composite_state;
 pub mod _4_substate_to_substate;
 pub mod _5_long_name;
 pub mod _6_history;
+pub mod _7_fork_join;
