@@ -35,7 +35,8 @@ where
         begin: TStates,
         end: TStates,
     ) -> &mut Transition<TStates> {
-        let new_trans = Transition::new(begin, end);
+        let new_trans =
+            Transition::new(begin, end, self.transitions.len() as u32);
         self.transitions.push(new_trans);
         self.transitions.iter_mut().last().unwrap()
     }
@@ -67,7 +68,7 @@ mod test {
 
     use super::*;
 
-    use super::super::{state::StateKind, transition::TransitionOption};
+    use super::super::state::StateKind;
 
     #[test]
     fn test_state() {
@@ -108,8 +109,7 @@ mod test {
 
         let trans = dia1
             .add_transition(States::State1, States::State2)
-            .set_description("State1State2 description")
-            .set_option(TransitionOption::History);
+            .set_description("State1State2 description");
 
         assert_eq!(trans.begin, States::State1);
         assert_eq!(trans.end, States::State2);
@@ -117,7 +117,6 @@ mod test {
             trans.description.as_ref().unwrap(),
             "State1State2 description"
         );
-        assert_eq!(trans.option, TransitionOption::History);
     }
 
     #[test]

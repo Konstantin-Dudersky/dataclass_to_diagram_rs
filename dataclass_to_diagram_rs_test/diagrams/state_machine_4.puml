@@ -8,7 +8,12 @@ state "B" as B {
     state "Z" as Z
 }
 
-Z --> Y
-X --> Z
+Z --> Y : 0
+X --> Z : 1
+
+json Transitions {
+    "0": "",
+    "1": ""
+}
 
 @enduml

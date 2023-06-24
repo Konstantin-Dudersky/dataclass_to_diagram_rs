@@ -14,14 +14,26 @@ state "NotShooting" as NotShooting {
     }
 }
 
-Start --> NotShooting
-NotShootingStart --> NotShootingIdle
-NotShootingIdle --> NotShootingConfiguring : EvConfig
-NotShootingConfiguring --> NotShootingIdle : EvConfig
-NotShootingConfiguringStart --> NotShootingConfiguringNewValueSelection
-NotShootingConfiguringNewValueSelection --> NotShootingConfiguringNewValuePreview : EvNewValue
-NotShootingConfiguringNewValuePreview --> NotShootingConfiguringNewValueSelection : EvNewValueRejected
-NotShootingConfiguringNewValuePreview --> NotShootingConfiguringNewValueSelection : EvNewValueSaved
-NotShootingConfiguringNewValuePreviewState1 --> NotShootingConfiguringNewValuePreviewState2 : EvNewValueSaved
+Start --> NotShooting : 0
+NotShootingStart --> NotShootingIdle : 1
+NotShootingIdle --> NotShootingConfiguring : 2
+NotShootingConfiguring --> NotShootingIdle : 3
+NotShootingConfiguringStart --> NotShootingConfiguringNewValueSelection : 4
+NotShootingConfiguringNewValueSelection --> NotShootingConfiguringNewValuePreview : 5
+NotShootingConfiguringNewValuePreview --> NotShootingConfiguringNewValueSelection : 6
+NotShootingConfiguringNewValuePreview --> NotShootingConfiguringNewValueSelection : 7
+NotShootingConfiguringNewValuePreviewState1 --> NotShootingConfiguringNewValuePreviewState2 : 8
+
+json Transitions {
+    "0": "",
+    "1": "",
+    "2": "EvConfig",
+    "3": "EvConfig",
+    "4": "",
+    "5": "EvNewValue",
+    "6": "EvNewValueRejected",
+    "7": "EvNewValueSaved",
+    "8": "EvNewValueSaved"
+}
 
 @enduml

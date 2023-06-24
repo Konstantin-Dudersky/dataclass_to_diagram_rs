@@ -7,9 +7,16 @@ State1 : this is another string
 state "State2" as State2
 state End <<end>>
 
-Start --> State1
-State1 --> State2
-State1 --> End
-State2 --> End
+Start --> State1 : 0
+State1 --> State2 : 1
+State1 --> End : 2
+State2 --> End : 3
+
+json Transitions {
+    "0": "",
+    "1": "",
+    "2": "",
+    "3": ""
+}
 
 @enduml

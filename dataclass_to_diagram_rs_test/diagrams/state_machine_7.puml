@@ -8,12 +8,22 @@ state Join <<join>>
 state "State4" as State4
 state End <<end>>
 
-Start --> Fork
-Fork --> State2
-Fork --> State3
-State2 --> Join
-State3 --> Join
-Join --> State4
-State4 --> End
+Start --> Fork : 0
+Fork --> State2 : 1
+Fork --> State3 : 2
+State2 --> Join : 3
+State3 --> Join : 4
+Join --> State4 : 5
+State4 --> End : 6
+
+json Transitions {
+    "0": "",
+    "1": "",
+    "2": "",
+    "3": "",
+    "4": "",
+    "5": "",
+    "6": ""
+}
 
 @enduml

@@ -5,6 +5,7 @@ use itertools::Itertools;
 
 use crate::domain::models::state_machine::Diagram;
 
+use super::super::utils::increase_indent::increase_indent;
 use super::{
     state_export::create_state_exported, state_export::StateExport,
     state_to_puml, transition_export::TransitionExport, transition_to_puml,
@@ -15,12 +16,13 @@ where
     TStates: Clone + Copy + PartialEq + Display,
 {
     format!(
-        "@startuml{options}{states}{transitions}
+        "@startuml{options}{states}{transitions}{transitions_desc}
 
 @enduml",
         options = export_options(diagram.hide_empty_description),
         states = export_states(&diagram),
         transitions = export_transitions(&diagram),
+        transitions_desc = export_transitions_trans(&diagram),
     )
 }
 
@@ -117,13 +119,12 @@ fn export_options(hide_empty_description: bool) -> String {
     collect_str
 }
 
-fn export_transitions<TStates>(diagram: &Diagram<TStates>) -> String
+fn create_transitions_for_export<TStates>(
+    diagram: &Diagram<TStates>,
+) -> Vec<TransitionExport>
 where
     TStates: Clone + Copy + PartialEq + Display,
 {
-    if diagram.transitions.len() == 0 {
-        return String::from("");
-    }
     let mut transitions_export: Vec<TransitionExport> = vec![];
 
     for tr in &diagram.transitions {
@@ -132,12 +133,49 @@ where
         let tr_export = TransitionExport::from(tr, &begin, &end);
         transitions_export.push(tr_export);
     }
-    let result = transitions_export
+
+    transitions_export
+}
+
+fn export_transitions<TStates>(diagram: &Diagram<TStates>) -> String
+where
+    TStates: Clone + Copy + PartialEq + Display,
+{
+    if diagram.transitions.len() == 0 {
+        return String::from("");
+    }
+    let result = create_transitions_for_export(&diagram)
         .iter()
         .map(|tr| transition_to_puml::export(tr))
         .collect::<Vec<String>>()
         .join("\n");
     format!("\n\n{}", result)
+}
+
+fn export_transitions_trans<TStates>(diagram: &Diagram<TStates>) -> String
+where
+    TStates: Clone + Copy + PartialEq + Display,
+{
+    if diagram.transitions.len() == 0 {
+        return String::from("");
+    }
+    let result = create_transitions_for_export(&diagram)
+        .iter()
+        .map(|trans| {
+            format!(
+                "\"{order}\": \"{description}\"",
+                order = trans.order,
+                description =
+                    trans.description.as_ref().unwrap_or(&String::from(""))
+            )
+        })
+        .join(",\n");
+    format!(
+        "\n\njson Transitions {{
+{result}
+}}",
+        result = increase_indent(&result)
+    )
 }
 
 #[cfg(test)]

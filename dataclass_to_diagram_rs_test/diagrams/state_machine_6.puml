@@ -13,18 +13,34 @@ state "State3" as State3 {
 }
 state End <<end>>
 
-Start --> State1
-State1 --> State2 : Succeeded
-State1 --> End : Aborted
-State2 --> State3 : Succeeded
-State2 --> End : Aborted
-State2 --> State3History : Resume
-State2 --> State3DeepHistory : DeepResume
-State3 --> End : Succeeded / Save Result
-State3 --> End : Aborted
-State3 --> State3 : Failed
-State3Start --> State3Accum
-State3Accum --> State3Accum : New Data
-State3Accum --> State3ProcessData : Enough Data
+Start --> State1 : 0
+State1 --> State2 : 1
+State1 --> End : 2
+State2 --> State3 : 3
+State2 --> End : 4
+State2 --> State3History : 5
+State2 --> State3DeepHistory : 6
+State3 --> End : 7
+State3 --> End : 8
+State3 --> State3 : 9
+State3Start --> State3Accum : 10
+State3Accum --> State3Accum : 11
+State3Accum --> State3ProcessData : 12
+
+json Transitions {
+    "0": "",
+    "1": "Succeeded",
+    "2": "Aborted",
+    "3": "Succeeded",
+    "4": "Aborted",
+    "5": "Resume",
+    "6": "DeepResume",
+    "7": "Succeeded / Save Result",
+    "8": "Aborted",
+    "9": "Failed",
+    "10": "",
+    "11": "New Data",
+    "12": "Enough Data"
+}
 
 @enduml
