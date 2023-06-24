@@ -9,7 +9,7 @@ pub fn export<TStates>(state: &mut StateExport<TStates>) -> String {
     let exported = match state.kind {
         StateKind::General => format!(
             "state \"{name}\" as {alias}{internal_states}{description}",
-            name = state.name,
+            name = state.name.replace("\n", "\\n"),
             alias = state.alias,
             internal_states =
                 export_internal_states(&mut state.internal_states_exported),
@@ -30,6 +30,12 @@ pub fn export<TStates>(state: &mut StateExport<TStates>) -> String {
         }
         StateKind::Choice => {
             format!("state {alias} <<choice>>", alias = state.alias)
+        }
+        StateKind::History => {
+            format!("state {alias} <<history>>", alias = state.alias)
+        }
+        StateKind::DeepHistory => {
+            format!("state {alias} <<history*>>", alias = state.alias)
         }
     };
     state.exported = Some(exported.clone());

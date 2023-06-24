@@ -1,0 +1,30 @@
+@startuml
+
+state Start <<start>>
+state "State1" as State1
+state "State2" as State2
+state "State3" as State3 {
+    state State3History <<history>>
+    state State3DeepHistory <<history*>>
+    state State3Start <<start>>
+    state "Accumulate Enough Data\nLong State Name" as State3Accum
+    State3Accum : Just a test
+    state "PrecessData" as State3ProcessData
+}
+state End <<end>>
+
+Start --> State1
+State1 --> State2 : Succeeded
+State1 --> End : Aborted
+State2 --> State3 : Succeeded
+State2 --> End : Aborted
+State2 --> State3History : Resume
+State2 --> State3DeepHistory : DeepResume
+State3 --> End : Succeeded / Save Result
+State3 --> End : Aborted
+State3 --> State3 : Failed
+State3Start --> State3Accum
+State3Accum --> State3Accum : New Data
+State3Accum --> State3ProcessData : Enough Data
+
+@enduml

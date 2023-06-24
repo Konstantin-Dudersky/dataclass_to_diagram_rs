@@ -1,0 +1,14 @@
+@startuml
+
+state "A" as A {
+    state "X" as X
+    state "Y" as Y
+}
+state "B" as B {
+    state "Z" as Z
+}
+
+Z --> Y
+X --> Z
+
+@enduml

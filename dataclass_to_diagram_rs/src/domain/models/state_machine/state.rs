@@ -20,6 +20,8 @@ pub enum StateKind {
     Fork,
     Join,
     Choice,
+    History,
+    DeepHistory,
 }
 
 impl<TStates> State<TStates>
