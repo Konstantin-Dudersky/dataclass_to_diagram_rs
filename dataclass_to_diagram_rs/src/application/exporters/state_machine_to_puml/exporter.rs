@@ -1,6 +1,6 @@
 use crate::domain::models::state_machine::Diagram;
 
-use super::super::traits::IExporter;
+use super::super::traits::IExportDiagram;
 
 use super::diagram_to_puml;
 
@@ -14,7 +14,7 @@ impl<TStates> Exporter<TStates> {
     }
 }
 
-impl<TStates> IExporter for Exporter<TStates>
+impl<TStates> IExportDiagram for Exporter<TStates>
 where
     TStates: Copy + std::fmt::Display + PartialEq,
 {

@@ -1,6 +1,7 @@
-use std::fs;
-
-use super::super::exporters::traits::IExporter;
+use super::{
+    super::exporters::traits::IExportDiagram,
+    traits::{IFileWriter, IFolderManipulation},
+};
 
 pub struct ExporterRunner {}
 
@@ -10,9 +11,13 @@ struct ExportedDiagram {
 }
 
 impl ExporterRunner {
-    pub fn new(dias: Vec<Box<dyn IExporter>>) {
-        fs::remove_dir_all("diagrams").unwrap_or_default();
-        fs::create_dir("diagrams").unwrap();
+    pub fn new(
+        file_writer: Box<dyn IFileWriter>,
+        folder_manipulation: Box<dyn IFolderManipulation>,
+        dias: Vec<Box<dyn IExportDiagram>>,
+    ) {
+        folder_manipulation.remove_dir_all();
+        folder_manipulation.create_dir();
 
         let exported_diagram = dias.iter().map(|dia| ExportedDiagram {
             filename: dia.get_filename(),
@@ -20,10 +25,7 @@ impl ExporterRunner {
         });
         // записываем текстовые файлы
         let _ = exported_diagram
-            .map(|ed| {
-                fs::write(format!("diagrams/{}", ed.filename), ed.export)
-                    .unwrap()
-            })
+            .map(|ed| file_writer.write(&ed.filename, &ed.export).unwrap())
             .collect::<()>();
     }
 }
