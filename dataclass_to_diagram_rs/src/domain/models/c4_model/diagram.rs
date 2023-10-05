@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use super::{relations::Rel, system::System};
+use super::{context::System, relations::Rel};
 
 #[derive(Clone, Default)]
 pub struct Diagram {
@@ -15,7 +15,7 @@ impl Diagram {
         }
     }
 
-    pub fn add_systems(self, systems: Vec<Rc<System>>) -> Self {
+    pub fn add_contexts(self, systems: Vec<Rc<System>>) -> Self {
         let mut new = self.clone();
         new.systems = systems;
         new
