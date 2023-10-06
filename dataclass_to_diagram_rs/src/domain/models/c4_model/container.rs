@@ -14,25 +14,30 @@ pub struct Container {
 }
 
 impl Container {
-    pub fn new(kind: ContainerKind, label: &str) -> Self {
+    pub fn new(label: &str) -> Self {
         Self {
             alias: generate_alias().to_string(),
-            kind,
             label: label.to_string(),
             ..Default::default()
         }
     }
 
+    pub fn set_kind(self, kind: ContainerKind) -> Self {
+        Self { kind, ..self }
+    }
+
     pub fn set_technology(self, technology: &str) -> Self {
-        let mut new = self.clone();
-        new.technology = Some(technology.into());
-        new
+        Self {
+            technology: Some(technology.into()),
+            ..self
+        }
     }
 
     pub fn set_description(self, description: &str) -> Self {
-        let mut new = self.clone();
-        new.description = Some(description.into());
-        new
+        Self {
+            description: Some(description.into()),
+            ..self
+        }
     }
 
     pub fn build(self) -> Rc<Self> {
@@ -52,9 +57,7 @@ mod tests {
 
     #[test]
     fn test1() {
-        let s1 = Container::new(ContainerKind::Container, "system1")
-            .set_technology("tech")
-            .build();
-        let s2 = Container::new(ContainerKind::ContainerDb, "system2").build();
+        let _ = Container::new("system1").set_technology("tech").build();
+        let _ = Container::new("system2").build();
     }
 }

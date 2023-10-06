@@ -5,7 +5,7 @@ use super::{container_to_puml, context_to_puml, relation_to_puml};
 pub fn export(diagram: &Diagram) -> String {
     let mut contexts = vec![];
     for context in &diagram.contexts {
-        let context = context_to_puml::export(context.clone());
+        let context = context_to_puml::export_single(context.clone());
         contexts.push(context);
     }
     let mut contexts = contexts.join("\n");

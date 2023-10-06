@@ -45,17 +45,14 @@ impl Rel {
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        super::{context::Context, context_kind::ContextKind},
-        *,
-    };
+    use super::{super::context::Context, *};
 
     #[test]
     fn test1() {
-        let s1 = Context::new(ContextKind::System, "s1").build();
-        let s2 = Context::new(ContextKind::System, "s2").build();
+        let s1 = Context::new("s1").build();
+        let s2 = Context::new("s2").build();
 
-        let r1 = Rel::new(&s1, &s2, "rel 1").build();
-        let r2 = Rel::new(&s1, &s2, "rel 2").build();
+        let _ = Rel::new(&s1, &s2, "rel 1").build();
+        let _ = Rel::new(&s1, &s2, "rel 2").build();
     }
 }

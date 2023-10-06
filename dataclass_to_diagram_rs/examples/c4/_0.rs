@@ -1,14 +1,15 @@
 use dataclass_to_diagram::{c4_model::*, Diagrams};
 
 pub fn create() -> Diagrams {
-    let person = Context::new(ContextKind::Person, "Label")
+    let person = Context::new("Label")
+        .set_kind(ContextKind::Person)
         .set_description("Optional Description")
         .build();
-    let container = Container::new(ContainerKind::Container, "Label")
+    let container = Container::new("Label")
         .set_description("Optional Description")
         .set_technology("Technology")
         .build();
-    let system = Context::new(ContextKind::System, "Label")
+    let system = Context::new("Label")
         .set_description("Optional Description")
         .build();
 
