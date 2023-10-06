@@ -1,18 +1,20 @@
 use std::rc::Rc;
 
-use super::{alias::generate_alias, context_kind::ContextKind, traits::IAlias};
+use super::{
+    alias::generate_alias, container_kind::ContainerKind, traits::IAlias,
+};
 
 #[derive(Clone, Default)]
-pub struct Context {
+pub struct Container {
     pub alias: String,
-    pub kind: ContextKind,
+    pub kind: ContainerKind,
     pub label: String,
     pub technology: Option<String>,
     pub description: Option<String>,
 }
 
-impl Context {
-    pub fn new(kind: ContextKind, label: &str) -> Self {
+impl Container {
+    pub fn new(kind: ContainerKind, label: &str) -> Self {
         Self {
             alias: generate_alias().to_string(),
             kind,
@@ -38,7 +40,7 @@ impl Context {
     }
 }
 
-impl IAlias for Context {
+impl IAlias for Container {
     fn get_alias(&self) -> String {
         self.alias.clone()
     }
@@ -50,9 +52,9 @@ mod tests {
 
     #[test]
     fn test1() {
-        let s1 = Context::new(ContextKind::System, "system1")
+        let s1 = Container::new(ContainerKind::Container, "system1")
             .set_technology("tech")
             .build();
-        let s2 = Context::new(ContextKind::System, "system2").build();
+        let s2 = Container::new(ContainerKind::ContainerDb, "system2").build();
     }
 }
