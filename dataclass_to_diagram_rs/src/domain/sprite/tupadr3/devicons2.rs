@@ -19,6 +19,7 @@ impl ISprite for Devicons2 {
     }
 }
 
+#[allow(non_camel_case_types)]
 #[derive(Clone, Debug)]
 pub enum Devicons2 {
     aarch64,

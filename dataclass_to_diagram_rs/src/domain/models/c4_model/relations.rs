@@ -9,6 +9,7 @@ pub struct Rel {
     pub to: String,
     pub label: String,
     pub technology: Option<String>,
+    pub link: Option<String>,
 }
 
 impl Rel {
@@ -34,6 +35,13 @@ impl Rel {
     pub fn set_technology(self, technology: &str) -> Self {
         Self {
             technology: Some(technology.into()),
+            ..self
+        }
+    }
+
+    pub fn set_link(self, link: &str) -> Self {
+        Self {
+            link: Some(link.into()),
             ..self
         }
     }

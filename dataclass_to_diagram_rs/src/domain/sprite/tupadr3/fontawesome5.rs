@@ -20,6 +20,7 @@ impl ISprite for FontAwesome5 {
     }
 }
 
+#[allow(non_camel_case_types)]
 #[derive(Clone, Debug)]
 pub enum FontAwesome5 {
     _500px,

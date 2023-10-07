@@ -6,14 +6,16 @@ pub fn export_single(container: Rc<Container>) -> String {
     let technology = container.technology.clone().unwrap_or_default();
     let description = container.description.clone().unwrap_or_default();
     let sprite = container.sprite.clone().unwrap_or_default();
+    let link = container.link.clone().unwrap_or_default();
     format!(
-        r#"{kind}($alias = {alias}, $label = "{label}", $techn = "{technology}", $descr = "{description}", $sprite = "{sprite}")"#,
+        r#"{kind}($alias = {alias}, $label = "{label}", $techn = "{technology}", $descr = "{description}", $sprite = "{sprite}", $link = "{link}")"#,
         kind = container.kind,
         alias = container.alias,
         label = container.label,
         technology = technology,
         description = description,
-        sprite = sprite
+        sprite = sprite,
+        link = link
     )
 }
 

@@ -15,6 +15,7 @@ pub struct Context {
     pub containers: Vec<Rc<Container>>,
     pub sprite: Option<String>,
     pub sprite_include: Vec<String>,
+    pub link: Option<String>,
 }
 
 impl Context {
@@ -52,6 +53,13 @@ impl Context {
         Self {
             sprite,
             sprite_include,
+            ..self
+        }
+    }
+
+    pub fn set_link(self, link: &str) -> Self {
+        Self {
+            link: Some(link.into()),
             ..self
         }
     }

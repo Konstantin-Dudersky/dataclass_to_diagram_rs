@@ -12,6 +12,7 @@ pub struct Container {
     pub label: String,
     pub technology: Option<String>,
     pub description: Option<String>,
+    pub link: Option<String>,
     pub sprite: Option<String>,
     pub sprite_include: Vec<String>,
 }
@@ -52,6 +53,13 @@ impl Container {
         Self {
             sprite,
             sprite_include,
+            ..self
+        }
+    }
+
+    pub fn set_link(self, link: &str) -> Self {
+        Self {
+            link: Some(link.into()),
             ..self
         }
     }

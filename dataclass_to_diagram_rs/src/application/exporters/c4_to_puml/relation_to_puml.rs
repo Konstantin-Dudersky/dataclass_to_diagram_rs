@@ -4,12 +4,14 @@ use crate::domain::models::c4_model::Rel;
 
 pub fn export_single(relation: Rc<Rel>) -> String {
     let technology = relation.technology.clone().unwrap_or_default();
+    let link = relation.link.clone().unwrap_or_default();
     format!(
-        r#"{kind}($from = {from}, $to = {to}, $label = "{label}", $techn = "{technology}")"#,
+        r#"{kind}($from = {from}, $to = {to}, $label = "{label}", $techn = "{technology}", $link = "{link}")"#,
         kind = relation.kind,
         from = relation.from,
         to = relation.to,
         label = relation.label,
+        link = link,
         technology = technology
     )
 }

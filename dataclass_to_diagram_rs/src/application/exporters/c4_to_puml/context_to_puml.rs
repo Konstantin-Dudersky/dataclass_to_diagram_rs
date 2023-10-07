@@ -9,26 +9,28 @@ use crate::domain::models::c4_model::{Container, Context, ContextKind};
 pub fn export_single(context: Rc<Context>) -> String {
     let description = context.description.clone().unwrap_or_default();
     let sprite = context.sprite.clone().unwrap_or_default();
+    let link = context.link.clone().unwrap_or_default();
     let containers = export_nested_containers(context.containers.clone());
     match context.kind {
         ContextKind::SystemBoundary | ContextKind::EnterpriseBoundary => {
             format!(
-                r#"{kind}($alias = {alias}, $label = "{label}", $sprite = "{sprite}"){containers}"#,
+                r#"{kind}($alias = {alias}, $label = "{label}", $link = "{link}"){containers}"#,
                 kind = context.kind,
                 alias = context.alias,
                 label = context.label,
-                sprite = sprite,
-                containers = containers 
+                link = link,
+                containers = containers
             )
         }
         _ => {
             format!(
-                r#"{kind}($alias = {alias}, $label = "{label}", $descr = "{description}", $sprite = "{sprite}"){containers}"#,
+                r#"{kind}($alias = {alias}, $label = "{label}", $descr = "{description}", $sprite = "{sprite}", $link = "{link}"){containers}"#,
                 kind = context.kind,
                 alias = context.alias,
                 label = context.label,
                 description = description,
                 sprite = sprite,
+                link = link,
                 containers = containers
             )
         }
