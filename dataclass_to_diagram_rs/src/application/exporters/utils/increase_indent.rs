@@ -1,3 +1,4 @@
+/// Увеличить отступ на 4 пробела
 pub fn increase_indent(input_string: &str) -> String {
     input_string
         .split("\n")

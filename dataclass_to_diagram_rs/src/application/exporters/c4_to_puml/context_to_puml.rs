@@ -1,6 +1,9 @@
 use std::rc::Rc;
 
-use super::container_to_puml;
+use super::{
+    super::utils::increase_indent::increase_indent, container_to_puml,
+};
+
 use crate::domain::models::c4_model::{Container, Context, ContextKind};
 
 pub fn export_single(context: Rc<Context>) -> String {
@@ -32,6 +35,7 @@ pub fn export_single(context: Rc<Context>) -> String {
 fn export_nested_containers(containers: Vec<Rc<Container>>) -> String {
     let mut containers = container_to_puml::export_several(containers);
     if containers.len() > 0 {
+        containers = increase_indent(&containers);
         containers = format!(
             r#"{{{containers}
 }}

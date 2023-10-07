@@ -1,5 +1,6 @@
 mod _0;
 mod _1;
+mod _2;
 
 use dataclass_to_diagram::Runner;
 

@@ -3,12 +3,14 @@ use std::rc::Rc;
 use crate::domain::models::c4_model::Container;
 
 pub fn export_single(container: Rc<Container>) -> String {
+    let technology = container.technology.clone().unwrap_or_default();
     let description = container.description.clone().unwrap_or_default();
     format!(
-        r#"{kind}($alias = {alias}, $label = "{label}", $descr = "{description}")"#,
+        r#"{kind}($alias = {alias}, $label = "{label}", $techn = "{technology}", $descr = "{description}")"#,
         kind = container.kind,
         alias = container.alias,
         label = container.label,
+        technology = technology,
         description = description
     )
 }
