@@ -5,13 +5,15 @@ use crate::domain::models::c4_model::Container;
 pub fn export_single(container: Rc<Container>) -> String {
     let technology = container.technology.clone().unwrap_or_default();
     let description = container.description.clone().unwrap_or_default();
+    let sprite = container.sprite.clone().unwrap_or_default();
     format!(
-        r#"{kind}($alias = {alias}, $label = "{label}", $techn = "{technology}", $descr = "{description}")"#,
+        r#"{kind}($alias = {alias}, $label = "{label}", $techn = "{technology}", $descr = "{description}", $sprite = "{sprite}")"#,
         kind = container.kind,
         alias = container.alias,
         label = container.label,
         technology = technology,
-        description = description
+        description = description,
+        sprite = sprite
     )
 }
 

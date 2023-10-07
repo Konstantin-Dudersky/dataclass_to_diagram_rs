@@ -1,7 +1,8 @@
 use std::rc::Rc;
 
 use super::{
-    alias::generate_alias, container_kind::ContainerKind, traits::IAlias,
+    super::super::sprite::ISprite, alias::generate_alias,
+    container_kind::ContainerKind, traits::IAlias,
 };
 
 #[derive(Clone, Default)]
@@ -11,6 +12,8 @@ pub struct Container {
     pub label: String,
     pub technology: Option<String>,
     pub description: Option<String>,
+    pub sprite: Option<String>,
+    pub sprite_include: Vec<String>,
 }
 
 impl Container {
@@ -36,6 +39,19 @@ impl Container {
     pub fn set_description(self, description: &str) -> Self {
         Self {
             description: Some(description.into()),
+            ..self
+        }
+    }
+
+    pub fn set_sprite<TSprite>(self, sprite: TSprite) -> Self
+    where
+        TSprite: ISprite,
+    {
+        let (sprite, sprite_include) = sprite.export();
+        let sprite = Some(sprite);
+        Self {
+            sprite,
+            sprite_include,
             ..self
         }
     }

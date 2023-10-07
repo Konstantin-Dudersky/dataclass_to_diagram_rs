@@ -11,10 +11,11 @@ pub mod state_machine {
 pub mod c4_model {
     use super::*;
     pub use domain::models::c4_model::{
-        Container, ContainerKind, Context, ContextKind, Diagram, Rel,
+        Container, ContainerKind, Context, ContextKind, Diagram, Rel, RelKind,
     };
 }
 
 pub use domain::models::Diagrams;
+pub use domain::sprite;
 
 pub use runner::Runner;

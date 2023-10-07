@@ -11,6 +11,7 @@ pub struct Diagram {
     pub contexts: Vec<Rc<Context>>,
     pub containers: Vec<Rc<Container>>,
     pub relations: Vec<Rc<Rel>>,
+    pub show_legend: bool,
 }
 
 impl Diagram {
@@ -36,6 +37,13 @@ impl Diagram {
         let mut new = self.clone();
         new.relations = relations;
         new
+    }
+
+    pub fn set_show_legend(self) -> Self {
+        Self {
+            show_legend: true,
+            ..self
+        }
     }
 
     pub fn build(self) -> Diagrams {

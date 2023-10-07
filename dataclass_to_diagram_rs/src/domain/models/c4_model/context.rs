@@ -1,8 +1,8 @@
 use std::rc::Rc;
 
 use super::{
-    alias::generate_alias, container::Container, context_kind::ContextKind,
-    traits::IAlias,
+    super::super::sprite::ISprite, alias::generate_alias, container::Container,
+    context_kind::ContextKind, traits::IAlias,
 };
 
 #[derive(Clone, Default)]
@@ -13,6 +13,8 @@ pub struct Context {
     pub technology: Option<String>,
     pub description: Option<String>,
     pub containers: Vec<Rc<Container>>,
+    pub sprite: Option<String>,
+    pub sprite_include: Vec<String>,
 }
 
 impl Context {
@@ -37,6 +39,19 @@ impl Context {
         let description = Some(description.into());
         Self {
             description,
+            ..self
+        }
+    }
+
+    pub fn set_sprite<TSprite>(self, sprite: TSprite) -> Self
+    where
+        TSprite: ISprite,
+    {
+        let (sprite, sprite_include) = sprite.export();
+        let sprite = Some(sprite);
+        Self {
+            sprite,
+            sprite_include,
             ..self
         }
     }
