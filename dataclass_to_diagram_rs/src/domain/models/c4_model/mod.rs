@@ -6,6 +6,7 @@ mod context_kind;
 mod diagram;
 mod relation_kind;
 mod relations;
+mod tags;
 mod traits;
 
 pub use container::Container;
@@ -15,3 +16,5 @@ pub use context_kind::ContextKind;
 pub use diagram::Diagram;
 pub use relation_kind::RelKind;
 pub use relations::Rel;
+pub use tags::ElementTag;
+pub use tags::RelTag;

@@ -2,6 +2,7 @@ mod application;
 mod domain;
 mod infrastructure;
 mod runner;
+mod utils;
 
 pub mod state_machine {
     use super::*;
@@ -11,7 +12,8 @@ pub mod state_machine {
 pub mod c4_model {
     use super::*;
     pub use domain::models::c4_model::{
-        Container, ContainerKind, Context, ContextKind, Diagram, Rel, RelKind,
+        Container, ContainerKind, Context, ContextKind, Diagram, ElementTag,
+        Rel, RelKind, RelTag,
     };
 }
 

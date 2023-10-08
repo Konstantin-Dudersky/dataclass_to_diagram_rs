@@ -1,0 +1,1 @@
+{{kind}}($from = {{from}}, $to = {{to}}, $label = "{{label}}", $techn = "{{technology}}", $tags = {{tags}}, $link = "{{link}}")

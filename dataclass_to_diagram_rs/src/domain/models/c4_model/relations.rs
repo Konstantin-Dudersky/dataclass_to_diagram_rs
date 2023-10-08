@@ -1,6 +1,8 @@
 use std::rc::Rc;
 
-use super::{relation_kind::RelKind, traits::IAlias};
+use crate::utils::clone_utils::clone_vec_of_ref_rc;
+
+use super::{relation_kind::RelKind, traits::IAlias, RelTag};
 
 #[derive(Clone, Default)]
 pub struct Rel {
@@ -10,6 +12,7 @@ pub struct Rel {
     pub label: String,
     pub technology: Option<String>,
     pub link: Option<String>,
+    pub tags: Vec<Rc<RelTag>>,
 }
 
 impl Rel {
@@ -44,6 +47,11 @@ impl Rel {
             link: Some(link.into()),
             ..self
         }
+    }
+
+    pub fn set_tags(self, tags: Vec<&Rc<RelTag>>) -> Self {
+        let tags = clone_vec_of_ref_rc(&tags);
+        Self { tags, ..self }
     }
 
     pub fn build(self) -> Rc<Self> {

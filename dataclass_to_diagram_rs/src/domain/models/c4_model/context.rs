@@ -1,8 +1,10 @@
 use std::rc::Rc;
 
+use crate::utils::clone_utils::{clone_vec_of_rc, clone_vec_of_ref_rc};
+
 use super::{
     super::super::sprite::ISprite, alias::generate_alias, container::Container,
-    context_kind::ContextKind, traits::IAlias,
+    context_kind::ContextKind, traits::IAlias, ElementTag,
 };
 
 #[derive(Clone, Default)]
@@ -16,6 +18,8 @@ pub struct Context {
     pub sprite: Option<String>,
     pub sprite_include: Vec<String>,
     pub link: Option<String>,
+    pub tags: Vec<Rc<ElementTag>>,
+    pub tags_included: Vec<Rc<ElementTag>>,
 }
 
 impl Context {
@@ -65,12 +69,24 @@ impl Context {
     }
 
     pub fn set_containers(self, containers: Vec<&Rc<Container>>) -> Self {
-        let containers = containers.iter().map(|c| (*c).clone()).collect();
+        let containers = clone_vec_of_ref_rc(&containers);
         Self { containers, ..self }
     }
 
+    pub fn set_tags(self, tags: Vec<&Rc<ElementTag>>) -> Self {
+        let tags = clone_vec_of_ref_rc(&tags);
+        Self { tags, ..self }
+    }
+
     pub fn build(self) -> Rc<Self> {
-        Rc::new(self)
+        let mut tags_included = self.tags.clone();
+        for container in &self.containers {
+            tags_included.extend(clone_vec_of_rc(&container.tags_included))
+        }
+        Rc::new(Self {
+            tags_included,
+            ..self
+        })
     }
 }
 
