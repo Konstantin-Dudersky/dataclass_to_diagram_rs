@@ -1,7 +1,6 @@
 mod application;
 mod domain;
 mod infrastructure;
-mod runner;
 mod utils;
 
 pub mod state_machine {
@@ -17,7 +16,6 @@ pub mod c4_model {
     };
 }
 
+pub use application::Runner;
 pub use domain::models::Diagrams;
 pub use domain::sprite;
-
-pub use runner::Runner;

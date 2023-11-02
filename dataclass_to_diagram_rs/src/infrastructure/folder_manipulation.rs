@@ -1,6 +1,6 @@
 use std::fs;
 
-use crate::application::exporter_runner::traits::IFolderManipulation;
+use crate::application::text_form_saver::traits::IFolderManipulation;
 
 pub struct FolderManipulation {
     folder: String,
